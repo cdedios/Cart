@@ -1,0 +1,83 @@
+/*
+ * Project 2: Unitary Testing
+ * Name: Carlos de Dios Felis
+ * DNI: 47903957V
+ * Date: 11/01/2013
+ */
+package code;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.util.HashMap;
+
+/**
+ * Allow the user to change money to different currencies.
+ * Implements the Exchanger interface.
+ * @author carlos
+ */
+class CurrencyExchanger implements Exchanger {
+
+    HashMap <DualCurrency, Double> Rates;
+    
+    public CurrencyExchanger() throws BadCurrencyException{
+        Rates = new HashMap<DualCurrency, Double>();
+        this.initRates();
+    }
+    
+    @Override
+    public void setRate(Currency from, Currency to, double rate){
+        if (rate<0) System.out.println("Negative rate :V");
+        else{
+            DualCurrency dual = new DualCurrency(from, to);
+            DualCurrency dual2 = new DualCurrency(to, from);
+            Rates.put(dual, rate);
+            Rates.put(dual2, 1/rate);
+        }
+    }
+
+    @Override
+    public Money convert(Money from, Currency to) throws BadCurrencyException, BadQuantityException{
+        DualCurrency trans = new DualCurrency(from.getCurrency(), to);
+        Double rate = Rates.get(trans);        
+        Money convertedMoney = new Money(from.getValue().multiply(new BigDecimal(rate, MathContext.DECIMAL32)) , to);
+        
+        return convertedMoney;
+    }
+    /*  
+     *  Initialize the Currency Exchanger to have a functional exchanger. 
+     */
+    public void initRates() throws BadCurrencyException{
+        this.setRate(new Currency("EUR"),new Currency("USD"),2);
+        this.setRate(new Currency("EUR"),new Currency("PLN"),4);
+        this.setRate(new Currency("USD"),new Currency("PLN"),10);
+    }
+}
+class DualCurrency{
+    /*
+     * This classe is only to have a key for the Rates hashmap that includes 
+     * both currencies.
+     */
+    Currency currency1;
+    Currency currency2;
+
+    public DualCurrency(Currency currency1, Currency currency2) {
+        this.currency1 = currency1;
+        this.currency2 = currency2;        
+    }        
+    
+    @Override    
+    public int hashCode(){
+        return (currency1.abbreviation+currency2.abbreviation).hashCode();
+    }
+    @Override
+    public boolean equals(Object obj){
+        if (obj == null)
+            return false;
+        if (obj == this)
+            return true;
+        if (obj.getClass() != getClass())
+            return false;
+        DualCurrency n = (DualCurrency) obj;
+        return this.currency1.equals(n.currency1) && this.currency2.equals(currency2);
+    }
+}

@@ -1,0 +1,55 @@
+/*
+ * Project 2: Unitary Testing
+ * Name: Carlos de Dios Felis
+ * Date: 11/01/2013
+ */
+package code;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ *  Allows to use Money with different currencies.
+ * @author carlos
+ */
+public class MultiCurrencyMoney {
+    List<Money> allMoney;
+    Money totalMoney;
+   
+    /**
+     *  Initialize the internal List allMoney to an ArrayList of Money.
+     */
+    public MultiCurrencyMoney(){
+        allMoney = new ArrayList<Money>();
+    }
+    /**
+     *  Add the given money to the internal list of Money.
+     * @param money Money to be added.
+     */
+    public void addMoney(Money money){
+        allMoney.add(money);
+    }
+    /**
+     * Calculates all the total value of all the money in the list and returns 
+     * a new Money object with the given currency and with the value of
+     * all the Money in the list.
+     * @param exchanger to do the conversion
+     * @param currency the currency to be returned and do the conversion.
+     * @return Money object .
+     * @throws BadCurrencyException
+     * @throws BadQuantityException  
+     */
+    public Money getTotal(Exchanger exchanger, Currency currency) throws BadCurrencyException, BadQuantityException{
+        totalMoney = new Money(BigDecimal.ZERO, currency);
+        for (Money money : allMoney){
+            if(money.getCurrency() == currency){
+                totalMoney = new Money (totalMoney.getValue().add(money.getValue()),currency);
+            }
+            else{                   
+                totalMoney = new Money (totalMoney.getValue().add(exchanger.convert(money, currency).getValue()), currency);
+            }
+        }
+        return totalMoney;
+    }
+}
